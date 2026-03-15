@@ -26,6 +26,8 @@ int main()
     case 3: filename = "Cave.ch8";            break;
     case 4: filename = "cavern.ch8";          break;
     case 5: filename = "Pong (1 player).ch8"; break;
+    
+    default: filename = "IBM Logo.ch8";       break;
     }
 
     // Chip-8 setup
