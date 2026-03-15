@@ -8,6 +8,15 @@
 #include <fstream>
 #include <vector>
 
+namespace Masks
+{
+	constexpr std::uint16_t nnn{ 0x0FFF }; // extracts the lower 12 bits
+	constexpr std::uint16_t n{ 0x000F }; // extracts the lower 4 bits
+	constexpr std::uint16_t x{ 0x0F00 }; // extracts the lower byte of the highbyte
+	constexpr std::uint16_t y{ 0x00F0 }; // extracts the higher byte of the lowbyte
+	constexpr std::uint16_t kk{0x00FF}; // extracts the lower 8 bits
+}
+
 struct Chip8 // the chip 8 cpu works at a clock of 500 instructions per second (500 Hz)
 {
 	std::uint8_t memory[4096]{}; // most programs starts at 0x200 (512)
@@ -43,6 +52,7 @@ auto printROM(const Chip8& cpu, int fileSize) 		  				 -> void;
 auto printDisplay(const Chip8& cpu) 				  				 -> void;
 auto init(std::string romName) 						  				 -> Chip8;
 auto getDisplay(const Chip8& cpu) 									 -> std::vector<std::uint8_t>;
+auto getOpcodeConvertedToString(std::uint16_t opcode)                -> std::string;
 
 // forward declarations for "opcodes.cpp"
 void op_00E0(Chip8& cpu, std::uint16_t opcode);

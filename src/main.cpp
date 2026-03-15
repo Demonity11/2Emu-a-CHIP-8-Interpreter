@@ -217,6 +217,8 @@ int main()
         {
             if (!cpu.waitForAKeyPress)
                 opcode = fetch(cpu);
+            
+            // getOpcodeConvertedToString(opcode);
 
             decode(cpu, opcode);
             cycleAccumulator -= timePerCycle.count();
