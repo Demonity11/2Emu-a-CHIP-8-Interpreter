@@ -42,6 +42,28 @@ struct Chip8 // the chip 8 cpu works at a clock of 500 instructions per second (
 	std::uint8_t keyBeingPressed{0xFF}; // 0xFF it will represent the that nothing is being pressed, otherwise it will store a number from 0x to 0xF
 };
 
+struct DebuggerViewState {
+    std::vector<std::string> disassembledInstructions;
+    int currentLineIndex{ 0 };
+
+    int visibleLinesCount{ 15 };
+    int topVisibleLine{ 0 };
+
+    bool isPaused{ false };
+    bool stepMode{ false };
+
+    std::string pcString{};
+    std::string iString{};
+    std::vector<std::string> vRegisterStrings{};
+};
+
+struct FPS
+{
+    double accumulator{ 0 };
+    int frames{ 0 };
+    double average{};
+};
+
 // forward declarations for "chip8.cpp"
 auto decode(Chip8& cpu, std::uint16_t opcode)         				 -> void;
 auto fetch(Chip8& cpu) 								  				 -> std::uint16_t;
@@ -50,7 +72,7 @@ auto loadFontSprites(Chip8& cpu)                      				 -> void;
 auto clearMemory(Chip8& cpu) 						  				 -> void;
 auto printROM(const Chip8& cpu, int fileSize) 		  				 -> void;
 auto printDisplay(const Chip8& cpu) 				  				 -> void;
-auto init(std::string& romName) 						  				 -> Chip8;
+auto init(const std::string& romName, DebuggerViewState& debugger) 	 -> Chip8;
 auto getDisplay(const Chip8& cpu) 									 -> std::vector<std::uint8_t>;
 auto getOpcodeConvertedToString(std::uint16_t opcode)                -> std::string;
 
@@ -98,5 +120,6 @@ auto getCallStack(const Chip8& cpu, int index) 		  -> std::string;
 auto disassembler(std::uint16_t opcode) 			  -> std::string;
 auto getFPS(double averageFPS)						  -> std::string;
 auto getRegister(const Chip8& cpu, int index)		  -> std::string;
+auto getMemoryContent(const Chip8& cpu, int fileSize) -> std::vector<std::string>;
 
 #endif

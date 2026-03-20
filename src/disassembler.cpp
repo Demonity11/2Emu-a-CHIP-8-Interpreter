@@ -1,6 +1,32 @@
 #include "chip8.h"
 #include <sstream>
 
+std::vector<std::string> getMemoryContent(const Chip8& cpu, int fileSize) // print all opcodes loaded into memory
+{
+    if (fileSize == -1) // if fileSize = -1, then there was an error when loading the file into memory
+    {
+        std::cerr << "Error. A file is not loaded into memory.\n";
+        return {};
+    }
+
+    const int romAddress{ 0x200 }; // roms are loaded from 0x200 onward in chip8
+    std::vector<std::string> memoryContent{};
+
+    for (int address{ romAddress }; address < romAddress + fileSize; address += 2)
+    {
+        std::uint16_t opcode = (cpu.memory[address] << 8) | cpu.memory[address + 1];
+
+        memoryContent.push_back(hexToString(address, 4) + ": " + disassembler(opcode));
+    }
+
+    // for (int i{ 0 }; i < memoryContent.size(); i++)
+    // {
+    //     std::cout << memoryContent.at(i) << "\n";
+    // }
+
+    return memoryContent;
+}
+
 std::string getFPS(double averageFPS)
 {
     std::stringstream ss{};
@@ -31,7 +57,7 @@ std::string getOpcodeConvertedToString(std::uint16_t opcode)
 {
     std::stringstream ss{};
 
-    ss << std::hex << std::uppercase << opcode;
+    ss << std::hex << std::uppercase << std::setw(4) << std::setfill('0') << opcode;
 
     std::string hexString{ "0x" + ss.str() };
 
@@ -274,11 +300,16 @@ std::string disassembler(std::uint16_t opcode)
             instruction += " - SKP " + regX;
         }
 
-        if (lastNibble == 0x1) 
+        else if (lastNibble == 0x1) 
         {
             const std::string regX{ getRegisterName((opcode & Masks::x) >> 8) };
             
             instruction += " - SKNP " + regX;
+        }
+
+        else
+        {
+            instruction += " - Unknown"; // there is a strange opcode that starts with E that I don't know about it.
         }
         
         return instruction;
@@ -361,8 +392,11 @@ std::string disassembler(std::uint16_t opcode)
 
     default:
     {
-        return std::string("???");
+        instruction += " - Unknown"; // for not implemented opcodes.
+        return instruction;
     }
     }
-    return std::string("???");
+
+    instruction += " - Unknown";
+    return instruction;
 }

@@ -208,7 +208,7 @@ std::vector<std::uint8_t> getDisplay(const Chip8& cpu)
     {
         if (cpu.display[i] == 1)
         {
-            display[i * 4] = 255;
+            display[i * 4]     = 255;
             display[i * 4 + 1] = 255;
             display[i * 4 + 2] = 255;
             display[i * 4 + 3] = 255;
@@ -216,7 +216,7 @@ std::vector<std::uint8_t> getDisplay(const Chip8& cpu)
 
         if (cpu.display[i] == 0)
         {
-            display[i * 4] = 0;
+            display[i * 4]     = 0;
             display[i * 4 + 1] = 0;
             display[i * 4 + 2] = 0;
             display[i * 4 + 3] = 255;
@@ -239,13 +239,15 @@ void printDisplay(const Chip8& cpu) // print the contents of the display array
     }
 }
 
-Chip8 init(std::string& romName)
+Chip8 init(const std::string& romName, DebuggerViewState& debugger)
 {
     Chip8 cpu{};
-    
-	loadROM(cpu, romName);
 
     loadFontSprites(cpu);
+    
+	int fileSize{ loadROM(cpu, romName) };
+
+    debugger.disassembledInstructions = getMemoryContent(cpu, fileSize);
 
     return cpu;
 }

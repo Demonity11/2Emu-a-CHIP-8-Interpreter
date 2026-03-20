@@ -5,16 +5,9 @@
 
 using namespace std::literals::chrono_literals;
 
-struct FPS
-{
-    double accumulator{ 0 };
-    int frames{ 0 };
-    double average{};
-};
-
 int main()
 {   
-    std::cout << "===== Select your ROM =====\n"
+    std::cout << "===== Select your ROM =====\n" // this solution for selecting roms is provisory.
               << "1 - IBM Logo.ch8\n"
               << "2 - Airplane.ch8\n"
               << "3 - Cave.ch8\n"
@@ -37,8 +30,12 @@ int main()
     default: filename = "IBM Logo.ch8";       break;
     }
 
+    // Debugger setup
+
+    DebuggerViewState debugger{};
+
     // Chip-8 setup
-    Chip8 cpu{ init(filename) };
+    Chip8 cpu{ init(filename, debugger) };
     std::vector<std::uint8_t> display(64 * 32 * 4);
     std::uint16_t opcode{};
     
@@ -54,15 +51,16 @@ int main()
     FPS fps{};
 
     // window size and scale multiplier
-    constexpr int wWidth{ 64 };
-    constexpr int wHeight{ 32 };
-    constexpr int wScale{ 15 };
+    constexpr int windowWidth{ 64 };
+    constexpr int windowHeight{ 32 };
+    constexpr int windowScale{ 20 };
 
     // SFML setup
-    sf::RenderWindow window( sf::VideoMode( { wWidth * wScale, wHeight * wScale} ), "CHIP-8" );
-    // window.setFramerateLimit(60);
+    sf::RenderWindow window( sf::VideoMode( { windowWidth * windowScale, windowHeight * windowScale} ), "CHIP-8" );
+    // window.setFramerateLimit(60); // while this adds some performance, it also breaks some games.
 
-    sf::Texture texture(sf::Vector2u(wWidth, wHeight));
+    sf::Texture gameWindow(sf::Vector2u(windowWidth, windowHeight));
+    sf::RenderTexture debugWindow({windowWidth, windowHeight});
 
     sf::Font font{};
 
@@ -73,10 +71,14 @@ int main()
     }
 
     sf::Text fpsCounter(font);
-
     fpsCounter.setCharacterSize(10);
     fpsCounter.setFillColor(sf::Color::Green);
-    fpsCounter.setPosition(sf::Vector2f(10, (wHeight * wScale) - 20));
+    fpsCounter.setPosition(sf::Vector2f(10, (windowHeight * windowScale) - 20));
+
+    sf::Text opcodes(font);
+    opcodes.setCharacterSize(12);
+    opcodes.setFillColor(sf::Color::White);
+    opcodes.setPosition(sf::Vector2f((windowWidth * windowScale) / 1.6f + 20.f, 20.f ));
 
     while (window.isOpen())
     {
@@ -90,7 +92,7 @@ int main()
         // FPS counter logic
         fps.accumulator += dt.count();
 
-        if (fps.accumulator >= 1000.0)
+        if (fps.accumulator >= 1000.0) // if 1s has passed, then we update the fps.
         {
             fps.average = (fps.frames * 1000) / fps.accumulator;
             
@@ -107,9 +109,9 @@ int main()
 
             if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
             {
-                if (keyPressed->scancode == sf::Keyboard::Scan::R) // reload the game: this is for games that freeze when you lose.
+                if (keyPressed->scancode == sf::Keyboard::Scan::R) // reload the game. This is for games that freezes when you lose.
                 {
-                    cpu = init(filename);
+                    cpu = init(filename, debugger);
 
                     timerAccumulator = 0;
                     cycleAccumulator = 0;
@@ -288,17 +290,25 @@ int main()
         {
             if (!cpu.waitForAKeyPress)
                 opcode = fetch(cpu);
-            
-            // std::cout << disassembler(opcode) << "\n";
 
             decode(cpu, opcode);
             cycleAccumulator -= timePerCycle.count();
         }
 
         display = getDisplay(cpu);
-        texture.update(display.data());
-        sf::Sprite sprite(texture);
-        sprite.setScale(sf::Vector2f(wScale, wScale));
+        gameWindow.update(display.data());
+
+        sf::Sprite gameWindowSprite(gameWindow);
+        gameWindowSprite.setScale(sf::Vector2f(windowScale / 1.6f, windowScale / 1.6f));
+
+        debugWindow.clear(sf::Color::Blue);
+        // debugWindow.draw(opcodes);
+        debugWindow.display();
+
+        sf::Sprite debugWindowSprite( debugWindow.getTexture() );
+        debugWindowSprite.setPosition({ (windowWidth * windowScale) / 1.6f, 0.f });
+        debugWindowSprite.setScale(sf::Vector2f(7.5f, windowScale / 1.6f));
+
 
         while (timerAccumulator >= timePerTimer.count()) // decrement timers and update screen at 60 Hz
         {
@@ -313,15 +323,40 @@ int main()
 
             ++fps.frames;
 
+            std::string lines{};
+            int baseIndex{ (cpu.pc - 0x200) / 2 };
+
+            for (int i{ 0 }; i < debugger.visibleLinesCount; ++i)
+            {
+                int index{ baseIndex + 0 };
+
+                if (index >= 0 && index < static_cast<int>(debugger.disassembledInstructions.size()))
+                {
+                    lines += debugger.disassembledInstructions[index] + "\n";
+                }
+            }
+
+            opcodes.setString(lines);
+
+            lines = "";
+
             window.clear(sf::Color::Black);
-            window.draw( sprite );
+            window.draw( gameWindowSprite );
+            window.draw( debugWindowSprite );
             window.draw( fpsCounter );
+            window.draw( opcodes );
             window.display();
         
             timerAccumulator -= timePerTimer.count();
+
+            // sf::Vector2f pos{ debugWindowSprite.getPosition() };
+            // sf::Color color{ debugWindowSprite.getColor() };
+
+            // std::cout << pos.x << ", " << pos.y << "\n";
+            // std::cout << color.toInteger() << "\n";
         }
         
-        std::this_thread::sleep_for(1ms);
+        std::this_thread::sleep_for(1ms); // this is not the best solution for stability, but it works for performance.
     }
 
     return 0;
