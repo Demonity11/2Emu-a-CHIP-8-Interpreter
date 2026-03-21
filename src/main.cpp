@@ -1,7 +1,7 @@
-#include "../include/chip8.h"
 #include <chrono>
 #include <thread>
 #include <SFML/Graphics.hpp>
+#include "../include/chip8.h"
 #include "imgui.h"
 #include "imgui-SFML.h"
 
@@ -60,7 +60,7 @@ int main()
     // SFML setup
     sf::RenderWindow window( sf::VideoMode( { windowWidth * windowScale, windowHeight * windowScale} ), "CHIP-8" );
     window.setFramerateLimit(60); // while this adds some performance, it also breaks some games.
-    sf::Clock deltaClock;
+    sf::Clock deltaClock{};
 
     // ImGui setup
     
@@ -95,8 +95,10 @@ int main()
         Milliseconds dt{ currentTime - lastTime }; // gets the time elapsed
         lastTime = currentTime; // currentTime is now in the past, so lastTime = currentTime
 
-        timerAccumulator += dt.count(); // increments the elapsed time per loop
-        cycleAccumulator += dt.count(); 
+        double frameTime = std::min(dt.count(), 250.0); 
+
+        timerAccumulator += frameTime;
+        cycleAccumulator += frameTime;
 
         // FPS counter logic
         fps.accumulator += dt.count();
@@ -299,11 +301,13 @@ int main()
 
         while (cycleAccumulator >= timePerCycle.count()) // fetch-decode-execute cycle at 500 Hz
         {
-            if (!cpu.waitForAKeyPress)
-                opcode = fetch(cpu);
-
-            decode(cpu, opcode);
             cycleAccumulator -= timePerCycle.count();
+            
+            if (cpu.waitForAKeyPress)
+                continue;
+
+            opcode = fetch(cpu);
+            decode(cpu, opcode);
         }
 
         while (timerAccumulator >= timePerTimer.count()) // decrement timers and update screen at 60 Hz
@@ -335,7 +339,11 @@ int main()
         debugWindowSprite.setPosition({ (windowWidth * windowScale) / 1.6f, 0.f });
         debugWindowSprite.setScale(sf::Vector2f(7.5f, windowScale / 1.6f));
 
-        std::string lines{};
+        
+        ImGui::SFML::Update(window, deltaClock.restart());
+        
+        ImGui::Begin("Debugger", &debugger.showDebugger, ImGuiWindowFlags_None);
+        
         int baseIndex{ (cpu.pc - 0x200) / 2 };
 
         for (int i{ 0 }; i < debugger.visibleLinesCount; ++i)
@@ -344,17 +352,16 @@ int main()
 
             if (index >= 0 && index < static_cast<int>(debugger.disassembledInstructions.size()))
             {
-                lines += debugger.disassembledInstructions[index] + "\n";
+                if (i == 0)
+                {
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f)); // Red color
+                    ImGui::Text(debugger.disassembledInstructions[index].c_str());
+                    ImGui::PopStyleColor();
+                }
+
+                ImGui::Text(debugger.disassembledInstructions[index].c_str());
             }
         }
-
-        opcodes.setString(lines);
-
-        lines = "";
-
-        ImGui::SFML::Update(window, deltaClock.restart());
-
-        ImGui::Begin("Debugger");
 
         ImGui::End();
 

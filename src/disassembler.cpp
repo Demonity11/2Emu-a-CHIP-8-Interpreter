@@ -96,10 +96,18 @@ std::string disassembler(std::uint16_t opcode)
     switch (firstNibble)
     {
     case 0x0:
-        if (opcode == 0x00E0) instruction += " - CLS";
-        if (opcode == 0x00EE) instruction += " - RET";
+        if (opcode == 0x00E0) 
+        {
+            instruction += " - CLS";
+            return instruction;
+        }
+        if (opcode == 0x00EE) 
+        {
+            instruction += " - RET";
+            return instruction;
+        }
 
-        return instruction;
+        return instruction + " - Unknown";
 
     case 0xA: 
     {
