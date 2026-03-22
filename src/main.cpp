@@ -9,7 +9,8 @@ using namespace std::literals::chrono_literals;
 
 int main()
 {   
-    std::cout << "===== Select your ROM =====\n" // this solution for selecting roms is provisory.
+    // this solution for selecting roms is provisory.
+    std::cout << "===== Select your ROM =====\n" 
               << "1 - IBM Logo.ch8\n"
               << "2 - Airplane.ch8\n"
               << "3 - Cave.ch8\n"
@@ -33,7 +34,6 @@ int main()
     }
 
     // Debugger setup
-
     bool isDebugging{ true };
 
     DebuggerViewState debugger{};
@@ -43,29 +43,26 @@ int main()
     std::vector<std::uint8_t> display(64 * 32 * 4);
     std::uint16_t opcode{};
     
+    // timers setup
     using Milliseconds = std::chrono::duration<double, std::milli>;
 
-    // timers setup
     constexpr Milliseconds timePerCycle{ 1000.0 / 500.0 }; // 500 Hz
     constexpr Milliseconds timePerTimer{ 1000.0 / 60.0 }; // 60 Hz
     auto lastTime = std::chrono::steady_clock::now();
     double timerAccumulator{ 0.0 };
     double cycleAccumulator{ 0.0 };
 
-    FPS fps{};
-
-    // window size and scale multiplier
+    // window size and scale multipliers
     constexpr int windowWidth{ 64 };
     constexpr int windowHeight{ 32 };
     constexpr int windowScale{ 20 };
 
     // SFML setup
     sf::RenderWindow window( sf::VideoMode( { windowWidth * windowScale, windowHeight * windowScale} ), "CHIP-8" );
-    window.setFramerateLimit(60); // while this adds some performance, it also breaks some games.
+    window.setFramerateLimit(60);
     sf::Clock deltaClock{};
 
     // ImGui setup
-    
     if (isDebugging)
     {
         if (!ImGui::SFML::Init(window))
@@ -75,6 +72,7 @@ int main()
     // textures setup
     sf::Texture gameWindow(sf::Vector2u(windowWidth, windowHeight));
 
+    // font setup
     sf::Font font{};
 
     if (!font.openFromFile("../PressStart2P-Regular.ttf")) 
@@ -83,16 +81,15 @@ int main()
         return -1; // Error loading
     }
 
+    // fps counter setup
+    FPS fps{};
+
     sf::Text fpsCounter(font);
     fpsCounter.setCharacterSize(10);
     fpsCounter.setFillColor(sf::Color::Green);
     fpsCounter.setPosition(sf::Vector2f(10, (windowHeight * windowScale) - 20));
 
-    sf::Text opcodes(font);
-    opcodes.setCharacterSize(12);
-    opcodes.setFillColor(sf::Color::White);
-    opcodes.setPosition(sf::Vector2f((windowWidth * windowScale) / 1.6f + 20.f, 20.f ));
-
+    // game loop
     while (window.isOpen())
     {
         auto currentTime{ std::chrono::steady_clock::now() };
@@ -117,6 +114,7 @@ int main()
             fps.accumulator -= 1000.0;
         }
 
+        // event loop
         while ( const std::optional event = window.pollEvent() )
 		{
             if (isDebugging)
@@ -307,27 +305,33 @@ int main()
         while (cycleAccumulator >= timePerCycle.count()) // fetch-decode-execute cycle at 500 Hz
         {
             cycleAccumulator -= timePerCycle.count();
-            
-            if (cpu.waitForAKeyPress)
-                continue;
 
-            opcode = fetch(cpu);
-            decode(cpu, opcode);
+            if (!debugger.isPaused)
+            {
+                if (cpu.waitForAKeyPress)
+                    continue;
+    
+                opcode = fetch(cpu);
+                decode(cpu, opcode);
+            }
         }
 
         while (timerAccumulator >= timePerTimer.count()) // decrement timers and update screen at 60 Hz
         {
-            if (cpu.delayTimer > 0) 
-                cpu.delayTimer--;
-
-            if (cpu.soundTimer > 0) 
-            {
-                cpu.soundTimer--;
-                // bips in the future
-            }
-
             ++fps.frames;
             timerAccumulator -= timePerTimer.count();
+
+            if (!debugger.isPaused)
+            {
+                if (cpu.delayTimer > 0) 
+                    cpu.delayTimer--;
+    
+                if (cpu.soundTimer > 0) 
+                {
+                    cpu.soundTimer--;
+                    // bips in the future
+                }
+            }
         }
 
         display = getDisplay(cpu);
@@ -337,7 +341,6 @@ int main()
         gameWindowSprite.setScale(sf::Vector2f(windowScale, windowScale));
         
         // ImGui debugger interface
-
         if (isDebugging)
         {
             ImGui::SFML::Update(window, deltaClock.restart());
@@ -415,6 +418,11 @@ int main()
 
                 ImGui::EndTabBar();
             }
+
+            if (ImGui::Button("Pause Emulation"))
+            {
+                debugger.isPaused ^= 1; // this toggles the isPaused variable 
+            }
     
             ImGui::End();
     
@@ -424,7 +432,6 @@ int main()
         window.clear(sf::Color::Black);
         window.draw( gameWindowSprite );
         window.draw( fpsCounter );
-        window.draw( opcodes );
 
         if (isDebugging)
             ImGui::SFML::Render(window);
