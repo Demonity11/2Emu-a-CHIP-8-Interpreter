@@ -1,5 +1,7 @@
 #include <chrono>
+#include <cmath>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include "../include/chip8.h"
 #include "imgui.h"
 #include "imgui-SFML.h"
@@ -69,6 +71,29 @@ int main()
 
     // textures setup
     sf::Texture gameWindow(sf::Vector2u(windowWidth, windowHeight));
+
+	// sound setup
+    constexpr unsigned int SAMPLE_RATE{ 44100 };
+    constexpr unsigned int AMPLITUDE{ 30000 };
+    constexpr double FREQUENCY{ 440.0 };
+
+    std::vector<std::int16_t> samples(SAMPLE_RATE / 10);
+
+    constexpr double cyclesPerSample{ FREQUENCY / SAMPLE_RATE };
+
+    for (unsigned int i{ 0 }; i < samples.size(); ++i)
+    {
+        if (std::sin(2 * 3.1415926535 * cyclesPerSample * i) > 0)
+            samples[i] = AMPLITUDE;
+        else
+            samples[i] = -AMPLITUDE;
+    }
+
+    sf::SoundBuffer buffer;
+    if (!buffer.loadFromSamples(samples.data(), samples.size(), 1, SAMPLE_RATE, {sf::SoundChannel::Mono}))
+        return -1;
+
+    sf::Sound sound(buffer);
 
     // font setup
     sf::Font font{};
@@ -342,7 +367,10 @@ int main()
                 if (cpu.soundTimer > 0) 
                 {
                     cpu.soundTimer--;
-                    // bips in the future
+                    if (sound.getStatus() != sf::Sound::Status::Playing)
+                    {
+                        sound.play();
+                    }
                 }
             }
         }
