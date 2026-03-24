@@ -42,6 +42,13 @@ struct Chip8 // the chip 8 cpu works at a clock of 500 instructions per second (
 	std::uint8_t keyBeingPressed{0xFF}; // 0xFF it will represent the that nothing is being pressed, otherwise it will store a number from 0x to 0xF
 };
 
+enum class EmulatorState
+{
+	RomSelection,
+	Running,
+	Paused,
+};
+
 struct DebuggerViewState {
     std::vector<std::string> disassembledInstructions;
     int currentLineIndex{ 0 };

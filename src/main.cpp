@@ -1,18 +1,21 @@
 #include <chrono>
 #include <cmath>
 #include <map>
+#include <filesystem>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include "../include/chip8.h"
 #include "imgui.h"
 #include "imgui-SFML.h"
 
-void showDebugger(bool isDebugging, sf::RenderWindow& window, sf::Clock& deltaClock, DebuggerViewState& debugger, const Chip8& cpu);
-
-using namespace std::literals::chrono_literals;
+// foward declarations
+void showDebugger(bool isDebugging, sf::RenderWindow& window, sf::Clock& deltaClock, DebuggerViewState& debugger, const Chip8& cpu, EmulatorState& emulatorState);
+std::optional<std::string> romSelection();
 
 int main()
 {   
+    EmulatorState emulatorState{ EmulatorState::RomSelection };
+
     // this solution for selecting roms is provisory.
     std::cout << "===== Select your ROM =====\n" 
               << "1 - IBM Logo.ch8\n"
@@ -194,7 +197,6 @@ int main()
                         cpu.keypad[keyMapping.at(key)] = 0x1;
                     }
                 }
-
             }
 
             if (const auto* keyPressed = event->getIf<sf::Event::KeyReleased>())
@@ -225,7 +227,7 @@ int main()
         {
             cycleAccumulator -= timePerCycle.count();
 
-            if (!debugger.isPaused)
+            if (emulatorState != EmulatorState::Paused) // if the emulator is not paused, then we fetch-decode-execute
             {
                 if (cpu.waitForAKeyPress)
                 {
@@ -243,7 +245,7 @@ int main()
             ++fps.frames;
             timerAccumulator -= timePerTimer.count();
 
-            if (!debugger.isPaused)
+            if (emulatorState != EmulatorState::Paused)
             {
                 if (cpu.delayTimer > 0) 
                     cpu.delayTimer--;
@@ -273,8 +275,17 @@ int main()
         gameWindowSprite.setScale(sf::Vector2f(windowScale, windowScale));
         
         // ImGui debugger interface
-        showDebugger(isDebugging, window, deltaClock, debugger, cpu);
+        showDebugger(isDebugging, window, deltaClock, debugger, cpu, emulatorState);
 
+        // ImGui rom selection interface
+        auto newFile { romSelection() }; // under construction.
+
+        if (newFile)
+        {
+            std::cout << *newFile << "\n";
+        }
+
+        // SFML drawing functions
         window.clear(sf::Color::Black);
         window.draw( gameWindowSprite );
         window.draw( fpsCounter );
@@ -290,7 +301,7 @@ int main()
     return 0;
 }
 
-void showDebugger(bool isDebugging, sf::RenderWindow& window, sf::Clock& deltaClock, DebuggerViewState& debugger, const Chip8& cpu)
+void showDebugger(bool isDebugging, sf::RenderWindow& window, sf::Clock& deltaClock, DebuggerViewState& debugger, const Chip8& cpu, EmulatorState& emulatorState)
 {
     if (isDebugging)
     {
@@ -373,9 +384,10 @@ void showDebugger(bool isDebugging, sf::RenderWindow& window, sf::Clock& deltaCl
             ImGui::EndTabBar();
         }
 
-        if (ImGui::Button((!debugger.isPaused) ? "Pause Emulation" : "Resume Emulation"))
+        if (ImGui::Button((emulatorState == EmulatorState::Running) ? "Pause Emulation" : "Resume Emulation"))
         {
-            debugger.isPaused ^= 1; // this toggles the isPaused variable 
+            emulatorState = (emulatorState == EmulatorState::Running) ? EmulatorState::Paused : EmulatorState::Running;
+            // if the emulator is running, then we switch to paused and vice-versa.
         }
 
         if (ImGui::Button("Step"))
@@ -387,4 +399,40 @@ void showDebugger(bool isDebugging, sf::RenderWindow& window, sf::Clock& deltaCl
 
         ImGui::ShowDemoWindow();
     }
+}
+
+std::optional<std::string> romSelection()
+{
+    namespace fs = std::filesystem;
+
+    std::optional<std::string> filename{};
+
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            ImGui::MenuItem("(Rom Manager)", NULL, false, false);
+            if (ImGui::BeginMenu("Select ROM"))
+            {
+                std::string romsPath{ "../roms" };
+
+                // Iterate over all files and subdirectories in the given path
+                for (const auto& entry : fs::directory_iterator(romsPath)) 
+                {
+                    if ( ImGui::MenuItem(entry.path().filename().string().c_str()) )
+                    {
+                        filename = entry.path().filename().string();
+                    }
+                }
+
+                ImGui::EndMenu();
+            }
+
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndMainMenuBar();
+    }
+
+    return filename;
 }

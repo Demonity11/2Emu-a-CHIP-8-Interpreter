@@ -19,11 +19,6 @@ std::vector<std::string> getMemoryContent(const Chip8& cpu, int fileSize) // pri
         memoryContent.push_back(hexToString(address, 4) + ": " + disassembler(opcode));
     }
 
-    // for (int i{ 0 }; i < memoryContent.size(); i++)
-    // {
-    //     std::cout << memoryContent.at(i) << "\n";
-    // }
-
     return memoryContent;
 }
 
