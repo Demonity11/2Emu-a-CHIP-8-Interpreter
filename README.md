@@ -75,6 +75,9 @@ cmake --build build
 ### Integrated Debugger in Action
 ![Debugger View](assets/debugger_view.png)
 
+### 2[E]mu in action
+![Interpreter in action](assets/cave.gif)
+
 ## ✍️ Author's Note
 
 What can I say? This was a really fun project to make. I am currently a first-semester Computer Science student at **UFERSA (Campus Mossoró)**. My trajectory until now was deciding that I want to be a graphics programmer, so after that I started learning C++ from [learncpp.com](https://www.learncpp.com/) (C++ is not my first language) and got a solid base to work on. 
