@@ -10,7 +10,7 @@
 
 // foward declarations
 void showDebugger(bool isDebugging, sf::RenderWindow& window, DebuggerViewState& debugger, const Chip8& cpu, EmulatorState& emulatorState);
-std::optional<std::string> romSelection(bool& isDebugging, sf::RenderWindow& window);
+std::optional<std::string> romSelection(bool& isDebugging, bool& showFPS, sf::RenderWindow& window);
 
 int main()
 {   
@@ -121,6 +121,7 @@ int main()
 
     // fps counter setup
     FPS fps{};
+    bool showFPS{ false };
 
     sf::Text fpsCounter(font);
     fpsCounter.setCharacterSize(10);
@@ -295,7 +296,7 @@ int main()
         
         if (showMainMenu)
         {
-            auto newFile { romSelection(isDebugging, window) }; // under construction.
+            auto newFile { romSelection(isDebugging, showFPS, window) }; // under construction.
     
             if (newFile)
             {
@@ -310,7 +311,9 @@ int main()
         // SFML drawing functions
         window.clear( (emulatorState == EmulatorState::Running) ? sf::Color::Black : sf::Color::White );
         window.draw( gameWindowSprite );
-        window.draw( fpsCounter );
+
+        if (showFPS)
+            window.draw( fpsCounter );
 
         ImGui::SFML::Render(window);
 
@@ -418,7 +421,7 @@ void showDebugger(bool isDebugging, sf::RenderWindow& window, DebuggerViewState&
     }
 }
 
-std::optional<std::string> romSelection(bool& isDebugging, sf::RenderWindow& window)
+std::optional<std::string> romSelection(bool& isDebugging, bool& showFPS, sf::RenderWindow& window)
 {
     namespace fs = std::filesystem;
 
@@ -443,6 +446,11 @@ std::optional<std::string> romSelection(bool& isDebugging, sf::RenderWindow& win
                 }
 
                 ImGui::EndMenu();
+            }
+
+            if (ImGui::MenuItem("Show FPS", NULL, showFPS))
+            {
+                showFPS ^= 1;
             }
 
             if (ImGui::MenuItem("Show Debugger", NULL, isDebugging))
