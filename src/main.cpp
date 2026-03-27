@@ -271,15 +271,6 @@ int main()
             gameWindow.update(display.data());
         }
 
-        // else
-        // {
-        //     if (!gameWindow.loadFromFile("../assets/2emu_logo.png", false, sf::IntRect({0, 0}, {64, 32})))
-        //     {
-        //         std::cerr << "Error. '2emu_logo' not found.\n";
-        //         return -1;
-        //     }
-        // }
-
         sf::Sprite gameWindowSprite((emulatorState == EmulatorState::Running) ? gameWindow : romSelectionWindow);
         gameWindowSprite.setScale(sf::Vector2f(windowScale, windowScale));
         
