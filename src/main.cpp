@@ -80,7 +80,7 @@ int main()
     sf::Texture gameWindow(sf::Vector2u(windowWidth, windowHeight));
     sf::Texture romSelectionWindow{};
 
-    if (!romSelectionWindow.loadFromFile("../assets/2emu_logo.png", false, sf::IntRect({0, 0}, {64,32})))
+    if (!romSelectionWindow.loadFromFile("assets/2emu_logo.png", false, sf::IntRect({0, 0}, {64,32})))
     {
         std::cerr << "Error. '2emu_logo.png' not found.\n";
         return -1;
@@ -113,7 +113,7 @@ int main()
     // font setup
     sf::Font font{};
 
-    if (!font.openFromFile("../assets/PressStart2P-Regular.ttf")) 
+    if (!font.openFromFile("assets/PressStart2P-Regular.ttf")) 
     {
         std::cerr << "Error loading font.\n";
         return -1; // Error loading
@@ -271,7 +271,7 @@ int main()
             gameWindow.update(display.data());
         }
 
-        sf::Sprite gameWindowSprite((emulatorState == EmulatorState::Running) ? gameWindow : romSelectionWindow);
+        sf::Sprite gameWindowSprite((emulatorState == EmulatorState::Running || emulatorState == EmulatorState::Paused) ? gameWindow : romSelectionWindow);
         gameWindowSprite.setScale(sf::Vector2f(windowScale, windowScale));
         
         // ImGui
@@ -425,7 +425,7 @@ std::optional<std::string> romSelection(bool& isDebugging, bool& showFPS, sf::Re
             ImGui::MenuItem("(Rom Manager)", NULL, false, false);
             if (ImGui::BeginMenu("Select ROM"))
             {
-                std::string romsPath{ "../roms" };
+                std::string romsPath{ "roms/" };
 
                 // Iterate over all files and subdirectories in the given path
                 for (const auto& entry : fs::directory_iterator(romsPath)) 

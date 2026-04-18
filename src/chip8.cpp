@@ -168,7 +168,7 @@ int loadROM(Chip8& cpu, const std::string& filename) // loads the rom into memor
     if (cpu.memory[romAddress + 1] != 0x00) // clears the memory if a file is already loaded into memory
         reset(cpu);
 
-    std::ifstream file("../roms/" + filename, std::ios::binary | std::ios::ate);
+    std::ifstream file("roms/" + filename, std::ios::binary | std::ios::ate);
 
     if (file.is_open()) 
     {
