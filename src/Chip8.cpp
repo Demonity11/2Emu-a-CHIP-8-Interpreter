@@ -142,7 +142,7 @@ std::vector<std::string> Chip8::getMemoryContent() const // print all opcodes lo
     {
         std::uint16_t opcode = (m_memory[address] << 8) | m_memory[address + 1];
 
-        memoryContent.push_back(hexToString(address, 4) + ": " + disassembler(opcode));
+        memoryContent.push_back(Disassembler::hexToString(address, 4) + ": " + Disassembler::disassembler(opcode));
     }
 
     return memoryContent;

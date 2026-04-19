@@ -1,8 +1,8 @@
 #include "Chip8.h"
-#include "disassembler.h"
+#include "Disassembler.h"
 #include "Utilities.h"
 
-std::string getFPS(double averageFPS)
+std::string Disassembler::getFPS(double averageFPS)
 {
     std::stringstream ss{};
 
@@ -11,7 +11,7 @@ std::string getFPS(double averageFPS)
     return ss.str();
 }
 
-std::string hexToString(std::uint16_t hex, int size)
+std::string Disassembler::hexToString(std::uint16_t hex, int size)
 {
     std::stringstream ss{};
 
@@ -22,13 +22,13 @@ std::string hexToString(std::uint16_t hex, int size)
     return hexString;
 }
 
-std::string getRegisterName(std::uint16_t regIndex)
+std::string Disassembler::getRegisterName(std::uint16_t regIndex)
 {
     const char* hexDigits{ "0123456789ABCDEF" };
     return std::string("V") + hexDigits[regIndex & 0xF];
 }
 
-std::string getOpcodeConvertedToString(std::uint16_t opcode)
+std::string Disassembler::getOpcodeConvertedToString(std::uint16_t opcode)
 {
     std::stringstream ss{};
 
@@ -39,7 +39,7 @@ std::string getOpcodeConvertedToString(std::uint16_t opcode)
     return hexString;
 }
 
-std::string disassembler(std::uint16_t opcode)
+std::string Disassembler::disassembler(std::uint16_t opcode)
 {
     std::uint16_t firstNibble = (opcode >> 12) & 0x000F;
     std::uint16_t lastNibble = opcode & 0x000F;

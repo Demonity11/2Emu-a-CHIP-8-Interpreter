@@ -150,7 +150,7 @@ int main()
         {
             fps.average = (fps.frames * 1000) / fps.accumulator;
             
-            fpsCounter.setString(getFPS(fps.average));
+            fpsCounter.setString(Disassembler::getFPS(fps.average));
 
             fps.frames = 0;
             fps.accumulator -= 1000.0;

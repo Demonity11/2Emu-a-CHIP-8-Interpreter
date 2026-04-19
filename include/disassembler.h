@@ -5,10 +5,14 @@
 #include <string>
 #include <sstream>
 
-auto hexToString(std::uint16_t hex, int size) 		  -> std::string;
-auto getRegisterName(std::uint16_t regIndex)  		  -> std::string;
-auto getOpcodeConvertedToString(std::uint16_t opcode) -> std::string;
-auto disassembler(std::uint16_t opcode) 			  -> std::string;
-auto getFPS(double averageFPS)						  -> std::string;
+class Disassembler
+{
+public:
+    static auto hexToString(std::uint16_t hex, int size) 		  -> std::string;
+    static auto getRegisterName(std::uint16_t regIndex)  		  -> std::string;
+    static auto getOpcodeConvertedToString(std::uint16_t opcode)  -> std::string;
+    static auto disassembler(std::uint16_t opcode) 			      -> std::string;
+    static auto getFPS(double averageFPS)						  -> std::string;
+};
 
 #endif
