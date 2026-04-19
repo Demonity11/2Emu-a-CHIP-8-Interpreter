@@ -7,6 +7,7 @@
 #include <vector>
 #include <fstream>
 #include <iomanip>
+#include <sstream>
 
 class Chip8 // the chip 8 cpu works at a clock of 500 instructions per second (500 Hz)
 {

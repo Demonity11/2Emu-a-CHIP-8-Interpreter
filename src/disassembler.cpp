@@ -2,6 +2,8 @@
 #include "Disassembler.h"
 #include "Utilities.h"
 
+#include <sstream>
+
 std::string Disassembler::getFPS(double averageFPS)
 {
     std::stringstream ss{};
