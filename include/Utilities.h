@@ -15,7 +15,7 @@ namespace Masks
 struct FPS
 {
     double accumulator{ 0 };
-    int frames{ 0 };
+    int    frames{ 0 };
     double average{};
 };
 

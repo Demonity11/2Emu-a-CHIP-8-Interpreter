@@ -1,5 +1,5 @@
 #include "Chip8.h"
-#include "disassembler.h"
+#include "Disassembler.h"
 
 constexpr std::uint8_t fontSet[]
 {
