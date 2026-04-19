@@ -169,3 +169,30 @@ std::string Chip8::getRegister(int index) const
 
     return hexString;
 }
+
+// getters and setters
+
+void          Chip8::setState(State emuState) { m_state = emuState; }
+Chip8::State  Chip8::getState() const { return m_state; }
+
+void          Chip8::setKeyBeingPressed(std::uint8_t key) { m_keyBeingPressed = key; }
+std::uint8_t  Chip8::getKeyBeingPressed() const { return m_keyBeingPressed; }
+
+void          Chip8::setKeypad(int index, std::uint8_t key) { m_keypad[index] = key; }
+std::uint8_t  Chip8::getKeypad(int index) const { return m_keypad[index]; }
+
+void          Chip8::waitForKey(bool b) { m_waitForAKeyPress = b; }
+bool          Chip8::isWaitingForKey() const { return m_waitForAKeyPress; }
+
+void          Chip8::decrementDelayTimer() { --m_delayTimer; }
+std::uint8_t  Chip8::getDelayTimer() const { return m_delayTimer; }
+
+void          Chip8::decrementSoundTimer() { --m_soundTimer; }
+std::uint8_t  Chip8::getSoundTimer() const { return m_soundTimer; }
+
+std::uint16_t Chip8::getPC() const { return m_pc; }
+std::uint8_t  Chip8::getSP() const { return m_sp; }
+std::uint16_t Chip8::getI() const { return m_I; }
+
+void          Chip8::setFilename(const std::string& file) { m_filename = file; }
+std::string   Chip8::getFilename() { return m_filename; }
