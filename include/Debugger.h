@@ -11,10 +11,10 @@ public:
 	auto setDebugging(bool b) -> void; // if true the debugger will be shown
 
 	auto isPaused() const -> bool;
-	auto pause(bool b) -> void; // if true, pauses the emulation
+	auto pauseEmulation(bool b) -> void; // if true, pauses the emulation
 
 	auto isSteping() -> bool;
-	auto setStepMode(bool b) -> void; // if true, the emulator steps
+	auto stepMode(bool b) -> void; // if true, the emulator steps
 
 	auto getAllInstructions() const -> std::vector<std::string>;
 	auto setAllInstructions(std::vector<std::string> instructions) -> void;
@@ -26,19 +26,13 @@ public:
 	auto setVisibleLinesCount(int linesCount) -> void; 
 
 private:
-    std::vector<std::string> disassembledInstructions;
-    int currentLineIndex{ 0 };
+    std::vector<std::string> m_disassembledInstructions;
 
-    int visibleLinesCount{ 15 };
-    int topVisibleLine{ 0 };
+    int m_visibleLinesCount{ 15 };
 
-    bool paused{ false };
-    bool stepMode{ false };
-	bool showDebugger{ false };
-
-    std::string pcString{};
-    std::string iString{};
-    std::vector<std::string> vRegisterStrings{};
+    bool m_isPaused{ false };
+    bool m_isSteping{ false };
+	bool m_showDebugger{ false };
 };
 
 #endif

@@ -10,7 +10,7 @@ class Opcodes
 public:
 	void setOpcode(std::uint16_t newOpcode)
 	{
-		opcode = newOpcode;
+		m_opcode = newOpcode;
 	}
 
 	void fetch(Chip8& cpu);
@@ -52,7 +52,7 @@ public:
     void op_Fx65(Chip8& cpu);
 
 private:
-	std::uint16_t opcode{};
+	std::uint16_t m_opcode{};
 };
 
 #endif

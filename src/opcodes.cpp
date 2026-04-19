@@ -5,202 +5,202 @@
 
 void Opcodes::op_00E0(Chip8& cpu)
 {
-    std::fill(std::begin(cpu.display), std::end(cpu.display), 0);
+    std::fill(std::begin(cpu.m_display), std::end(cpu.m_display), 0);
 }
 
 void Opcodes::op_00EE(Chip8& cpu) 
 {
-    if (cpu.sp > 0) 
+    if (cpu.m_sp > 0) 
     {
-        --cpu.sp;
-        cpu.pc = cpu.stack[cpu.sp];
+        --cpu.m_sp;
+        cpu.m_pc = cpu.m_stack[cpu.m_sp];
     } 
 }
 
 void Opcodes::op_Annn(Chip8& cpu)
 {
-    cpu.I = opcode & Masks::nnn;
+    cpu.m_I = m_opcode & Masks::nnn;
 }
 
 void Opcodes::op_1nnn(Chip8& cpu)
 {
-    cpu.pc = opcode & Masks::nnn;
+    cpu.m_pc = m_opcode & Masks::nnn;
 }
 
 void Opcodes::op_2nnn(Chip8& cpu) 
 {
-    if (cpu.sp < 15) 
+    if (cpu.m_sp < 15) 
     { 
-        cpu.stack[cpu.sp] = cpu.pc;
-        ++cpu.sp;
-        cpu.pc = opcode & Masks::nnn;
+        cpu.m_stack[cpu.m_sp] = cpu.m_pc;
+        ++cpu.m_sp;
+        cpu.m_pc = m_opcode & Masks::nnn;
     } 
 }
 
 void Opcodes::op_3xkk(Chip8& cpu)
 {
-    std::uint16_t x  = (opcode & Masks::x) >> 8;
-    std::uint16_t kk = opcode & Masks::kk;
+    std::uint16_t x  = (m_opcode & Masks::x) >> 8;
+    std::uint16_t kk = m_opcode & Masks::kk;
 
-    if (cpu.V[x] == kk)
-        cpu.pc += 2;
+    if (cpu.m_V[x] == kk)
+        cpu.m_pc += 2;
 }
 
 void Opcodes::op_4xkk(Chip8& cpu)
 {
-    std::uint16_t x  = (opcode & Masks::x) >> 8;
-    std::uint16_t kk = opcode & Masks::kk;
+    std::uint16_t x  = (m_opcode & Masks::x) >> 8;
+    std::uint16_t kk = m_opcode & Masks::kk;
 
-    if (cpu.V[x] != kk)
-        cpu.pc += 2;
+    if (cpu.m_V[x] != kk)
+        cpu.m_pc += 2;
 }
 
 void Opcodes::op_5xy0(Chip8& cpu)
 {
-    std::uint16_t x = (opcode & Masks::x) >> 8;
-    std::uint16_t y = (opcode & Masks::y) >> 4;
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
+    std::uint16_t y = (m_opcode & Masks::y) >> 4;
 
-    if (cpu.V[x] == cpu.V[y])
-        cpu.pc += 2;
+    if (cpu.m_V[x] == cpu.m_V[y])
+        cpu.m_pc += 2;
 }
 
 void Opcodes::op_6xkk(Chip8& cpu)
 {
-    std::uint16_t x  = (opcode & Masks::x) >> 8;
-    std::uint16_t kk = opcode & Masks::kk;
+    std::uint16_t x  = (m_opcode & Masks::x) >> 8;
+    std::uint16_t kk = m_opcode & Masks::kk;
 
-    cpu.V[x] = static_cast<std::uint8_t>(kk);
+    cpu.m_V[x] = static_cast<std::uint8_t>(kk);
 }
 
 void Opcodes::op_7xkk(Chip8& cpu)
 {
-    std::uint16_t x  = (opcode & Masks::x) >> 8;
-    std::uint16_t kk = opcode & Masks::kk;
+    std::uint16_t x  = (m_opcode & Masks::x) >> 8;
+    std::uint16_t kk = m_opcode & Masks::kk;
 
-    cpu.V[x] += static_cast<std::uint8_t>(kk);
+    cpu.m_V[x] += static_cast<std::uint8_t>(kk);
 }
 
 void Opcodes::op_8xy0(Chip8& cpu)
 {
-    std::uint16_t x = (opcode & Masks::x) >> 8;
-    std::uint16_t y = (opcode & Masks::y) >> 4;
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
+    std::uint16_t y = (m_opcode & Masks::y) >> 4;
 
-    cpu.V[x] = cpu.V[y];
+    cpu.m_V[x] = cpu.m_V[y];
 }
 
 void Opcodes::op_8xy1(Chip8& cpu)
 {
-    std::uint16_t x = (opcode & Masks::x) >> 8;
-    std::uint16_t y = (opcode & Masks::y) >> 4;
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
+    std::uint16_t y = (m_opcode & Masks::y) >> 4;
 
-    cpu.V[x] = cpu.V[x] | cpu.V[y];
+    cpu.m_V[x] = cpu.m_V[x] | cpu.m_V[y];
 }
 
 void Opcodes::op_8xy2(Chip8& cpu)
 {
-    std::uint16_t x = (opcode & Masks::x) >> 8;
-    std::uint16_t y = (opcode & Masks::y) >> 4;
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
+    std::uint16_t y = (m_opcode & Masks::y) >> 4;
 
-    cpu.V[x] = cpu.V[x] & cpu.V[y];
+    cpu.m_V[x] = cpu.m_V[x] & cpu.m_V[y];
 }
 
 void Opcodes::op_8xy3(Chip8& cpu)
 {
-    std::uint16_t x = (opcode & Masks::x) >> 8;
-    std::uint16_t y = (opcode & Masks::y) >> 4;
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
+    std::uint16_t y = (m_opcode & Masks::y) >> 4;
 
-    cpu.V[x] = cpu.V[x] ^ cpu.V[y];
+    cpu.m_V[x] = cpu.m_V[x] ^ cpu.m_V[y];
 }
 
 void Opcodes::op_8xy4(Chip8& cpu)
 {
-    std::uint16_t x = (opcode & Masks::x) >> 8;
-    std::uint16_t y = (opcode & Masks::y) >> 4;
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
+    std::uint16_t y = (m_opcode & Masks::y) >> 4;
 
-    std::uint16_t sum = cpu.V[x] + cpu.V[y];
+    std::uint16_t sum = cpu.m_V[x] + cpu.m_V[y];
 
     if (sum > 0xFF)
     {
-        cpu.V[x] = static_cast<std::uint8_t>(sum & 0xFF);
-        cpu.V[0xF] = 1; 
+        cpu.m_V[x] = static_cast<std::uint8_t>(sum & 0xFF);
+        cpu.m_V[0xF] = 1; 
         return;
     }
 
-    cpu.V[x] = cpu.V[x] + cpu.V[y];
-    cpu.V[0xF] = 0;
+    cpu.m_V[x] = cpu.m_V[x] + cpu.m_V[y];
+    cpu.m_V[0xF] = 0;
 }
 
 void Opcodes::op_8xy5(Chip8& cpu)
 {
-    std::uint16_t x = (opcode & Masks::x) >> 8;
-    std::uint16_t y = (opcode & Masks::y) >> 4;
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
+    std::uint16_t y = (m_opcode & Masks::y) >> 4;
 
-    if (cpu.V[x] >= cpu.V[y])
-        cpu.V[0xF] = 1;
+    if (cpu.m_V[x] >= cpu.m_V[y])
+        cpu.m_V[0xF] = 1;
     else
-        cpu.V[0xF] = 0;
+        cpu.m_V[0xF] = 0;
 
-    cpu.V[x] = cpu.V[x] - cpu.V[y];
+    cpu.m_V[x] = cpu.m_V[x] - cpu.m_V[y];
 }
 
 void Opcodes::op_8xy6(Chip8& cpu) 
 {
-    std::uint16_t x = (opcode & Masks::x) >> 8;
-    std::uint16_t y = (opcode & Masks::y) >> 4;
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
+    std::uint16_t y = (m_opcode & Masks::y) >> 4;
 
-    std::uint8_t leastBit = cpu.V[y] & 0x01;
+    std::uint8_t leastBit = cpu.m_V[y] & 0x01;
 
-    cpu.V[x] = cpu.V[y] >> 1;
-    cpu.V[0xF] = leastBit;
+    cpu.m_V[x] = cpu.m_V[y] >> 1;
+    cpu.m_V[0xF] = leastBit;
 }
 
 void Opcodes::op_8xy7(Chip8& cpu)
 {
-    std::uint16_t x = (opcode & Masks::x) >> 8;
-    std::uint16_t y = (opcode & Masks::y) >> 4;
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
+    std::uint16_t y = (m_opcode & Masks::y) >> 4;
 
-    if (cpu.V[y] >= cpu.V[x])
-        cpu.V[0xF] = 1;
+    if (cpu.m_V[y] >= cpu.m_V[x])
+        cpu.m_V[0xF] = 1;
     else
-        cpu.V[0xF] = 0;
+        cpu.m_V[0xF] = 0;
 
-    cpu.V[x] = cpu.V[y] - cpu.V[x];
+    cpu.m_V[x] = cpu.m_V[y] - cpu.m_V[x];
 }
 
 void Opcodes::op_8xyE(Chip8& cpu)
 {
-    std::uint16_t x = (opcode & Masks::x) >> 8;
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
 
-    if (static_cast<bool>(cpu.V[x] & 0x80))
-        cpu.V[0xF] = 1;
+    if (static_cast<bool>(cpu.m_V[x] & 0x80))
+        cpu.m_V[0xF] = 1;
     else
-        cpu.V[0xF] = 0;
+        cpu.m_V[0xF] = 0;
 
-    cpu.V[x] = cpu.V[x] << 1;
+    cpu.m_V[x] = cpu.m_V[x] << 1;
 }
 
 void Opcodes::op_9xy0(Chip8& cpu)
 {
-    std::uint16_t x = (opcode & Masks::x) >> 8;
-    std::uint16_t y = (opcode & Masks::y) >> 4;
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
+    std::uint16_t y = (m_opcode & Masks::y) >> 4;
 
-    if (cpu.V[x] != cpu.V[y])
-        cpu.pc += 2;
+    if (cpu.m_V[x] != cpu.m_V[y])
+        cpu.m_pc += 2;
 }
 
 void Opcodes::op_Bnnn(Chip8& cpu)
 {
-    std::uint16_t nnn = opcode & Masks::nnn;
-    cpu.pc = nnn + cpu.V[0x0];
+    std::uint16_t nnn = m_opcode & Masks::nnn;
+    cpu.m_pc = nnn + cpu.m_V[0x0];
 }
 
 void Opcodes::op_Cxkk(Chip8& cpu)
 {
     std::uint8_t randomNumber = Random::get(0, 255);
-    std::uint16_t x = (opcode & Masks::x) >> 8;
-    std::uint16_t kk = opcode & Masks::kk;
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
+    std::uint16_t kk = m_opcode & Masks::kk;
     
-    cpu.V[x] = randomNumber & kk;
+    cpu.m_V[x] = randomNumber & kk;
 }
 
 void Opcodes::op_Dxyn(Chip8& cpu) 
@@ -208,14 +208,14 @@ void Opcodes::op_Dxyn(Chip8& cpu)
     const int screenWidth{ 64 };
     const int screenHeight{ 32 };
 
-    std::uint16_t x = (opcode & Masks::x) >> 8;
-    std::uint16_t y = (opcode & Masks::y) >> 4;
-    std::uint16_t n = opcode & Masks::n;
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
+    std::uint16_t y = (m_opcode & Masks::y) >> 4;
+    std::uint16_t n = m_opcode & Masks::n;
 
-    cpu.V[0xF] = 0x00; 
+    cpu.m_V[0xF] = 0x00; 
 
-    int xCoord{ cpu.V[x] };
-    int yCoord{ cpu.V[y] };
+    int xCoord{ cpu.m_V[x] };
+    int yCoord{ cpu.m_V[y] };
 
     for (int j{ 0 }; j < n; ++j) 
     {
@@ -226,7 +226,7 @@ void Opcodes::op_Dxyn(Chip8& cpu)
 
         for (int i{ 0 }, shift{ 7 }; i < 8; ++i, --shift) 
         {
-            std::uint8_t bit = (cpu.memory[cpu.I + j] >> shift) & 0x01; 
+            std::uint8_t bit = (cpu.m_memory[cpu.m_I + j] >> shift) & 0x01; 
 
             if (spriteInitialPos + i > (screenWidth * screenHeight) - 1) 
                 continue;
@@ -234,10 +234,10 @@ void Opcodes::op_Dxyn(Chip8& cpu)
             if (xCoord + i > screenWidth - 1) 
                 continue;
 
-            if ((cpu.display[spriteInitialPos + i] & 0x01) == 0x01 && (bit == 0x01)) 
-                cpu.V[0xF] = 0x01;
+            if ((cpu.m_display[spriteInitialPos + i] & 0x01) == 0x01 && (bit == 0x01)) 
+                cpu.m_V[0xF] = 0x01;
 
-            cpu.display[spriteInitialPos + i] ^= bit;
+            cpu.m_display[spriteInitialPos + i] ^= bit;
         }
         ++yCoord;
     }
@@ -245,126 +245,126 @@ void Opcodes::op_Dxyn(Chip8& cpu)
 
 void Opcodes::op_Ex9E(Chip8& cpu)
 {
-    std::uint16_t x = (opcode & Masks::x) >> 8;
-    std::uint8_t key = cpu.V[x];
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
+    std::uint8_t key = cpu.m_V[x];
 
-    if (key < 16 && cpu.keypad[key])
+    if (key < 16 && cpu.m_keypad[key])
     {
-        cpu.keypad[key] = 0x0;
-        cpu.keyBeingPressed = 0xFF;
-        cpu.pc += 2;
+        cpu.m_keypad[key] = 0x0;
+        cpu.m_keyBeingPressed = 0xFF;
+        cpu.m_pc += 2;
     }
 }
 
 void Opcodes::op_ExA1(Chip8& cpu)
 {
-    std::uint16_t x = (opcode & Masks::x) >> 8;
-    std::uint8_t key = cpu.V[x];
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
+    std::uint8_t key = cpu.m_V[x];
 
-    if (key < 16 && cpu.keypad[key] == 0x0)
+    if (key < 16 && cpu.m_keypad[key] == 0x0)
     {
-        cpu.pc += 2;
+        cpu.m_pc += 2;
     }
 }
 
 void Opcodes::op_Fx07(Chip8& cpu)
 {
-    std::uint16_t x = (opcode & Masks::x) >> 8;
-    cpu.V[x] = cpu.delayTimer;
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
+    cpu.m_V[x] = cpu.m_delayTimer;
 }
 
 void Opcodes::op_Fx0A(Chip8& cpu)
 {
-    std::uint16_t x = (opcode & Masks::x) >> 8;
-    cpu.waitForAKeyPress = true;
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
+    cpu.m_waitForAKeyPress = true;
 
-    if (cpu.keyBeingPressed >= 0x0 && cpu.keyBeingPressed <= 0xF)
+    if (cpu.m_keyBeingPressed >= 0x0 && cpu.m_keyBeingPressed <= 0xF)
     {
-        cpu.V[x] = cpu.keyBeingPressed;
-        cpu.keypad[cpu.keyBeingPressed] = 0x0;
-        cpu.keyBeingPressed = 0xFF;
-        cpu.waitForAKeyPress = false;
+        cpu.m_V[x] = cpu.m_keyBeingPressed;
+        cpu.m_keypad[cpu.m_keyBeingPressed] = 0x0;
+        cpu.m_keyBeingPressed = 0xFF;
+        cpu.m_waitForAKeyPress = false;
     }
 }
 
 void Opcodes::op_Fx15(Chip8& cpu)
 {
-    std::uint16_t x = (opcode & Masks::x) >> 8;
-    cpu.delayTimer = cpu.V[x];
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
+    cpu.m_delayTimer = cpu.m_V[x];
 }
 
 void Opcodes::op_Fx18(Chip8& cpu)
 {
-    std::uint16_t x = (opcode & Masks::x) >> 8;
-    cpu.soundTimer = cpu.V[x];
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
+    cpu.m_soundTimer = cpu.m_V[x];
 }
 
 void Opcodes::op_Fx1E(Chip8& cpu)
 {
-    std::uint16_t x = (opcode & Masks::x) >> 8;
-    cpu.I += cpu.V[x];
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
+    cpu.m_I += cpu.m_V[x];
 }
 
 void Opcodes::op_Fx29(Chip8& cpu)
 {
-    std::uint16_t x = (opcode & Masks::x) >> 8;
-    cpu.I = 0x50 + (cpu.V[x] * 5);
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
+    cpu.m_I = 0x50 + (cpu.m_V[x] * 5);
 }
 
 void Opcodes::op_Fx33(Chip8& cpu)
 {
-    std::uint16_t x = (opcode & Masks::x) >> 8;
-    std::uint8_t number = cpu.V[x];
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
+    std::uint8_t number = cpu.m_V[x];
 
     for (int digitCounter{ 2 }; digitCounter >= 0; --digitCounter)
     {
         std::uint8_t digit = number % 10; 
-        cpu.memory[cpu.I + digitCounter] = digit; 
+        cpu.m_memory[cpu.m_I + digitCounter] = digit; 
         number = (number - digit) / 10;
     }
 }
 
 void Opcodes::op_Fx55(Chip8& cpu)
 {
-    std::uint16_t x = (opcode & Masks::x) >> 8;
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
 
     for (int i{ 0 }; i <= x; ++i)
     {
-        cpu.memory[cpu.I + i] = cpu.V[i];
+        cpu.m_memory[cpu.m_I + i] = cpu.m_V[i];
     }
 }
 
 void Opcodes::op_Fx65(Chip8& cpu)
 {
-    std::uint16_t x = (opcode & Masks::x) >> 8;
+    std::uint16_t x = (m_opcode & Masks::x) >> 8;
 
     for (int i{ 0 }; i <= x; ++i)
     {
-        cpu.V[i] = cpu.memory[cpu.I + i];
+        cpu.m_V[i] = cpu.m_memory[cpu.m_I + i];
     }
 }
 
 void Opcodes::fetch(Chip8& cpu)
 {
-    std::uint16_t highByte = (cpu.memory[cpu.pc] << 8);
-    std::uint16_t lowByte = cpu.memory[cpu.pc + 1];
+    std::uint16_t highByte = (cpu.m_memory[cpu.m_pc] << 8);
+    std::uint16_t lowByte = cpu.m_memory[cpu.m_pc + 1];
     
-    opcode = highByte | lowByte;
+    m_opcode = highByte | lowByte;
     
-    cpu.pc += 2;
+    cpu.m_pc += 2;
 }
 
 void Opcodes::decode(Chip8& cpu)
 {
-    std::uint16_t firstNibble = (opcode >> 12) & 0x000F;
-    std::uint16_t lastNibble = opcode & 0x000F;
+    std::uint16_t firstNibble = (m_opcode >> 12) & 0x000F;
+    std::uint16_t lastNibble = m_opcode & 0x000F;
 
     switch (firstNibble)
     {
     case 0x0:
-        if (opcode == 0x00E0) op_00E0(cpu);
+        if (m_opcode == 0x00E0) op_00E0(cpu);
 
-        if (opcode == 0x00EE) op_00EE(cpu);
+        if (m_opcode == 0x00EE) op_00EE(cpu);
 
         break;
 
@@ -422,7 +422,7 @@ void Opcodes::decode(Chip8& cpu)
         break;
 
     case 0xF:
-        switch (opcode & 0x00FF)
+        switch (m_opcode & 0x00FF)
         {
         case 0x07: op_Fx07(cpu); break;
 

@@ -219,7 +219,7 @@ int main()
             
             opcode.decode(cpu);
 
-            debugger.setStepMode(false);
+            debugger.stepMode(false);
         }
 
         while (cycleAccumulator >= timePerCycle.count()) // fetch-decode-execute cycle at 500 Hz
@@ -411,7 +411,7 @@ void showDebugger(sf::RenderWindow& window, Debugger& debugger, Chip8& cpu)
 
         if (ImGui::Button("Step"))
         {
-            debugger.setStepMode(true);
+            debugger.stepMode(true);
         }
 
         ImGui::End();

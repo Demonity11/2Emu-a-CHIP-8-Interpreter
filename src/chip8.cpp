@@ -30,28 +30,28 @@ Chip8::Chip8()
 // before loading another rom, we want to clear the state of the machine
 void Chip8::reset() 
 {
-    pc = 0x200; 
+    m_pc = 0x200; 
 
-    std::fill(std::begin(V), std::end(V), 0);
+    std::fill(std::begin(m_V), std::end(m_V), 0);
 
-    I = 0;
-    sp = 0;
+    m_I = 0;
+    m_sp = 0;
 
-    std::fill(std::begin(stack), std::end(stack), 0);
+    std::fill(std::begin(m_stack), std::end(m_stack), 0);
 
-    delayTimer = 0;
-    soundTimer = 0;
+    m_delayTimer = 0;
+    m_soundTimer = 0;
 
-    std::fill(std::begin(memory) + 80, std::end(memory), 0);
+    std::fill(std::begin(m_memory) + 80, std::end(m_memory), 0);
 
-    std::fill(std::begin(display), std::end(display), 0);
+    std::fill(std::begin(m_display), std::end(m_display), 0);
 }
 
 void Chip8::loadFontSprites()
 {
     const int fontInitialAddress{ 0x50 };
 
-    if (memory[fontInitialAddress] != 0x00)
+    if (m_memory[fontInitialAddress] != 0x00)
     {
         std::cerr << "Error. Font sprites can only be loaded one time.\n";
         return;
@@ -59,20 +59,20 @@ void Chip8::loadFontSprites()
 
     for (int i{ 0 }; i < 80; ++i) // 80 is the size of the fontSet array
     {
-        memory[fontInitialAddress + i] = fontSet[i];
+        m_memory[fontInitialAddress + i] = fontSet[i];
     }
 
-    std::cout << "Font sprites loaded into memory.\n";
+    std::cout << "Font sprites loaded into m_memory.\n";
 }
 
 void Chip8::loadROM() // loads the rom into memory
 {
     const int romAddress{ 0x200 };
 
-    if (memory[romAddress + 1] != 0x00) // clears the memory if a file is already loaded into memory
+    if (m_memory[romAddress + 1] != 0x00) // clears the memory if a file is already loaded into memory
         reset();
 
-    std::ifstream file("roms/" + filename, std::ios::binary | std::ios::ate);
+    std::ifstream file("roms/" + m_filename, std::ios::binary | std::ios::ate);
 
     if (file.is_open()) 
     {
@@ -82,23 +82,23 @@ void Chip8::loadROM() // loads the rom into memory
         if (romSize > (4096 - 512)) // if the file being read is bigger than the available space in memory, then we don't want to load in the memory
         {
             std::cerr << "Error. ROM's size is bigger than the available space.\n";
-            fileSize = -1;
+            m_fileSize = -1;
             return;
         }
 
-        file.read(reinterpret_cast<char*>(&memory[romAddress]), romSize);
+        file.read(reinterpret_cast<char*>(&m_memory[romAddress]), romSize);
 
         file.close();
 
-        std::cout << filename << " was successfully loaded into memory.\n";
+        std::cout << m_filename << " was successfully loaded into memory.\n";
 
-        fileSize = romSize; // returns the file's size
+        m_fileSize = romSize; // returns the file's size
         return;
     }
 
     std::cerr << "Error. File not loaded into memory.\n";
 
-    fileSize = -1; 
+    m_fileSize = -1; 
 }
 
 std::vector<std::uint8_t> Chip8::getDisplay()
@@ -107,7 +107,7 @@ std::vector<std::uint8_t> Chip8::getDisplay()
 
     for (int i{ 0 }; i < 64 * 32; ++i)
     {
-        if (display[i] == 1)
+        if (m_display[i] == 1)
         {
             vec_display[i * 4]     = 255;
             vec_display[i * 4 + 1] = 255;
@@ -115,7 +115,7 @@ std::vector<std::uint8_t> Chip8::getDisplay()
             vec_display[i * 4 + 3] = 255;
         }
 
-        if (display[i] == 0)
+        if (m_display[i] == 0)
         {
             vec_display[i * 4]     = 0;
             vec_display[i * 4 + 1] = 0;
@@ -127,22 +127,9 @@ std::vector<std::uint8_t> Chip8::getDisplay()
     return vec_display;
 }
 
-void Chip8::printDisplay() // print the contents of the display array
-{
-    const int displaySize{ 64 * 32 };
-
-    for (int i{ 0 }; i < displaySize; ++i)
-    {
-        std::cout << (display[i] == 1 ? static_cast<char>(219) : ' '); // 219 = █ in ASCII Table
-
-        if ((i + 1) % 64 == 0)
-            std::cout << "\n"; // ends line when each row is printed
-    }
-}
-
 std::vector<std::string> Chip8::getMemoryContent() const // print all opcodes loaded into memory
 {
-    if (fileSize == -1) // if fileSize = -1, then there was an error when loading the file into memory
+    if (m_fileSize == -1) // if fileSize = -1, then there was an error when loading the file into memory
     {
         std::cerr << "Error. A file is not loaded into memory.\n";
         return {};
@@ -151,9 +138,9 @@ std::vector<std::string> Chip8::getMemoryContent() const // print all opcodes lo
     const int romAddress{ 0x200 }; // roms are loaded from 0x200 onward in chip8
     std::vector<std::string> memoryContent{};
 
-    for (int address{ romAddress }; address < romAddress + fileSize; address += 2)
+    for (int address{ romAddress }; address < romAddress + m_fileSize; address += 2)
     {
-        std::uint16_t opcode = (memory[address] << 8) | memory[address + 1];
+        std::uint16_t opcode = (m_memory[address] << 8) | m_memory[address + 1];
 
         memoryContent.push_back(hexToString(address, 4) + ": " + disassembler(opcode));
     }
@@ -165,7 +152,7 @@ std::string Chip8::getCallStack(int index) const
 {
     std::stringstream ss{};
 
-    ss << std::hex << std::uppercase << "Stack #" << index << stack[index];
+    ss << std::hex << std::uppercase << "Stack #" << index << m_stack[index];
 
     std::string hexString{ ss.str() };
 
@@ -176,7 +163,7 @@ std::string Chip8::getRegister(int index) const
 {
     std::stringstream ss{};
 
-    ss << std::hex << std::uppercase << "V" << index << ": 0x" << std::setw(2) << std::setfill('0') << V[index];
+    ss << std::hex << std::uppercase << "V" << index << ": 0x" << std::setw(2) << std::setfill('0') << m_V[index];
 
     std::string hexString{ ss.str() };
 
