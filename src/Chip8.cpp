@@ -163,7 +163,7 @@ std::string Chip8::getRegister(int index) const
 {
     std::stringstream ss{};
 
-    ss << std::hex << std::uppercase << "V" << index << ": 0x" << std::setw(2) << std::setfill('0') << m_V[index];
+    ss << std::hex << std::uppercase << "V" << index << ": 0x" << std::setw(2) << std::setfill('0') << static_cast<int>(m_V[index]);
 
     std::string hexString{ ss.str() };
 
