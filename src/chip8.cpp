@@ -21,6 +21,12 @@ constexpr std::uint8_t fontSet[]
     0xF0, 0x80, 0xF0, 0x80, 0x80   // F
 }; 
 
+Chip8::Chip8()
+{
+    reset();
+    loadFontSprites();
+}
+
 // before loading another rom, we want to clear the state of the machine
 void Chip8::reset() 
 {
@@ -175,10 +181,4 @@ std::string Chip8::getRegister(int index) const
     std::string hexString{ ss.str() };
 
     return hexString;
-}
-
-void Chip8::init()
-{
-    loadFontSprites();
-    loadROM();
 }

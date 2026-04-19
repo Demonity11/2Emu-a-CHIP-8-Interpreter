@@ -173,7 +173,8 @@ int main()
                 {
                     if (cpu.getFilename() != "")
                     {
-                        cpu.init();
+                        cpu.reset();
+                        cpu.loadROM();
 
                         timerAccumulator = 0;
                         cycleAccumulator = 0;
@@ -296,7 +297,7 @@ int main()
             {
                 cpu.setFilename(*newFile);
 
-                cpu.init();
+                cpu.loadROM();
                 cpu.setState(Chip8::Running);
                 showMainMenu = false;
             }

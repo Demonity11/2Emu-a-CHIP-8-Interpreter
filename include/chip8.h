@@ -3,11 +3,10 @@
 
 #include <cstdint>
 #include <iostream>
-#include <iomanip>
 #include <string>
-#include <fstream>
 #include <vector>
-#include <sstream>
+#include <fstream>
+#include <iomanip>
 
 class Chip8 // the chip 8 cpu works at a clock of 500 instructions per second (500 Hz)
 {
@@ -19,11 +18,12 @@ public:
 		Paused,
 	};
 
+	Chip8();
+
 	auto loadROM() 											-> void; 										 
 	auto loadFontSprites()      							-> void;
 	auto reset() 						  					-> void;
 	auto printDisplay()										-> void;
-	auto init() 											-> void;
 	auto getDisplay()										-> std::vector<std::uint8_t>;
 	auto getOpcodeConvertedToString(std::uint16_t opcode)   -> std::string;
 

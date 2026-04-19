@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <string>
+#include <sstream>
 
 auto hexToString(std::uint16_t hex, int size) 		  -> std::string;
 auto getRegisterName(std::uint16_t regIndex)  		  -> std::string;

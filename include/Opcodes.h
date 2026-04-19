@@ -2,7 +2,6 @@
 #define OPCODES_H
 
 #include <cstdint>
-#include <iomanip>
 
 class Chip8;
 
